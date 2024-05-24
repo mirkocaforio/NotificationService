@@ -63,6 +63,52 @@ public class RabbitMQConfig {
 
     // ------  END SECURITY  ------ //
 
+    // ------  NOTIFICATION  ------ //
+
+    @Value("${rabbitmq.queue.notification.name}")
+    private String notificationQueue;
+
+    @Value("${rabbitmq.exchange.notification.name}")
+    private String notificationExchange;
+
+    @Value("${rabbitmq.routing.notification.key}")
+    private String notificationRoutingKey;
+
+    /**
+     * Defines the security response queue.
+     *
+     * @return a new Queue instance
+     */
+    @Bean
+    public Queue notificationQueue() {
+        return new Queue(notificationQueue);
+    }
+
+    /**
+     * Defines the security exchange.
+     *
+     * @return a new TopicExchange instance
+     */
+    @Bean
+    public TopicExchange notificationExchange() {
+        return new TopicExchange(notificationExchange);
+    }
+
+    /**
+     * Defines the binding between the security response queue and the security exchange.
+     *
+     * @return a new Binding instance
+     */
+    @Bean
+    public Binding notificationBinding() {
+        return BindingBuilder
+                .bind(notificationQueue())
+                .to(notificationExchange())
+                .with(notificationRoutingKey);
+    }
+
+    // ------  END NOTIFICATION  ------ //
+
     /**
      * Creates a message converter for JSON messages.
      *

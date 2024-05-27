@@ -1,9 +1,11 @@
 package it.unisalento.pasproject.notificationservice.controller;
 
-import it.unisalento.pasproject.notificationservice.domain.Notification;
+import it.unisalento.pasproject.notificationservice.domain.EmailNotification;
+import it.unisalento.pasproject.notificationservice.domain.PopupNotification;
 import it.unisalento.pasproject.notificationservice.dto.NotificationDTO;
 import it.unisalento.pasproject.notificationservice.dto.NotificationListDTO;
-import it.unisalento.pasproject.notificationservice.repositories.NotificationRepository;
+import it.unisalento.pasproject.notificationservice.repositories.EmailNotificationRepository;
+import it.unisalento.pasproject.notificationservice.repositories.PopupNotificationRepository;
 import it.unisalento.pasproject.notificationservice.service.NotificationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,25 +20,45 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/notification")
 public class NotificationController {
-    private final NotificationRepository notificationRepository;
+    private final EmailNotificationRepository emailNotificationRepository;
+    private final PopupNotificationRepository popupNotificationRepository;
     private final NotificationService notificationService;
     private static final Logger LOGGER = LoggerFactory.getLogger(NotificationController.class);
 
     @Autowired
-    public NotificationController(NotificationRepository notificationRepository, NotificationService notificationService) {
-        this.notificationRepository = notificationRepository;
+    public NotificationController(NotificationService notificationService, EmailNotificationRepository emailNotificationRepository, PopupNotificationRepository popupNotificationRepository) {
         this.notificationService = notificationService;
+        this.emailNotificationRepository = emailNotificationRepository;
+        this.popupNotificationRepository = popupNotificationRepository;
     }
 
-    @GetMapping(value = "/find/all")
-    public NotificationListDTO getAllNotifications() {
+    //TODO: VEDERE COME GESTIRE I REPOSITORY PER FARE LE QUERY, SE SERVIRANNO
+
+    @GetMapping(value = "/findEmail/all")
+    public NotificationListDTO getAllEmailNotifications() {
         NotificationListDTO notificationListDTO = new NotificationListDTO();
         List<NotificationDTO> notificationList = new ArrayList<>();
         notificationListDTO.setNotificationsList(notificationList);
 
-        List<Notification> notifications = notificationRepository.findAll();
+        List<EmailNotification> notifications = emailNotificationRepository.findAll();
 
-        for (Notification notification : notifications) {
+        for (EmailNotification notification : notifications) {
+            NotificationDTO notificationDTO = notificationService.getNotificationDTO(notification);
+            notificationList.add(notificationDTO);
+        }
+
+        return notificationListDTO;
+    }
+
+    @GetMapping(value = "/findPopup/all")
+    public NotificationListDTO getAllPopupNotifications() {
+        NotificationListDTO notificationListDTO = new NotificationListDTO();
+        List<NotificationDTO> notificationList = new ArrayList<>();
+        notificationListDTO.setNotificationsList(notificationList);
+
+        List<PopupNotification> notifications = popupNotificationRepository.findAll();
+
+        for (PopupNotification notification : notifications) {
             NotificationDTO notificationDTO = notificationService.getNotificationDTO(notification);
             notificationList.add(notificationDTO);
         }

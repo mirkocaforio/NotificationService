@@ -6,5 +6,5 @@ import lombok.Setter;
 @Getter
 @Setter
 public class PopupNotificationDTO extends NotificationDTO {
-    private String userEmail;
+    private boolean read;
 }

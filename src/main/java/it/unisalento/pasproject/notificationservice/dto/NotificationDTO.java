@@ -9,6 +9,8 @@ import java.time.LocalDateTime;
 @Setter
 public abstract class NotificationDTO {
     private String id;
+    private String email;
+    private String subject;
     private String message;
     private LocalDateTime sendAt;
 }

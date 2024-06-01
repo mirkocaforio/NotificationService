@@ -22,7 +22,7 @@ public class PopupNotificationSender implements NotificationSender {
             throw new IllegalArgumentException("Invalid notification type");
         }
 
-        SseEmitter emitter = sseEmitters.get(popupNotification.getUserEmail());
+        SseEmitter emitter = sseEmitters.get(popupNotification.getEmail());
         if (emitter != null) {
             try {
                 emitter.send(popupNotification.getMessage());

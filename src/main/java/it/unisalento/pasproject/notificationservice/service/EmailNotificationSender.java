@@ -5,22 +5,24 @@ import it.unisalento.pasproject.notificationservice.domain.Notification;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
+import java.io.ByteArrayOutputStream;
 
 @Service
 public class EmailNotificationSender implements NotificationSender {
     //TODO: Da capire come gestire l'eventuale invio di un allegato
     private final JavaMailSender mailSender;
+    private final PdfCreator pdfCreator;
 
     @Autowired
-    public EmailNotificationSender(JavaMailSender mailSender) {
+    public EmailNotificationSender(JavaMailSender mailSender, PdfCreator pdfCreator) {
         this.mailSender = mailSender;
+        this.pdfCreator = pdfCreator;
     }
 
     @Override
@@ -41,9 +43,8 @@ public class EmailNotificationSender implements NotificationSender {
                 helper.setText(notification.getMessage());
 
                 // Aggiungi un allegato al messaggio
-                FileSystemResource file = new FileSystemResource(new File(emailNotification.getAttachment()));
-                //TODO: Nome del file di attachment totalmente campato in aria per ora
-                helper.addAttachment("Attachment", file);
+                ByteArrayOutputStream attachment = pdfCreator.createPdf(emailNotification.getAttachment());
+                helper.addAttachment("attachment.pdf", new ByteArrayResource(attachment.toByteArray()));
 
                 mailSender.send(message);
             } catch (MessagingException e) {

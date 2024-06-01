@@ -11,6 +11,8 @@ import java.time.LocalDateTime;
 public abstract class Notification {
     @Id
     private String id;
+    private String email;
+    private String subject;
     private String message;
     private LocalDateTime sendAt;
     //TODO: VEDERE COME GESTIRE EVENTUALI ALLEGATI

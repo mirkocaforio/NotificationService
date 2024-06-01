@@ -4,7 +4,6 @@ package it.unisalento.pasproject.notificationservice.service;
 import it.unisalento.pasproject.notificationservice.business.exchanger.MessageExchangeStrategy;
 import it.unisalento.pasproject.notificationservice.business.exchanger.MessageExchanger;
 import it.unisalento.pasproject.notificationservice.dto.UserDetailsDTO;
-import it.unisalento.pasproject.notificationservice.exceptions.UserNotAuthorizedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,13 +58,17 @@ public class UserCheckService {
      */
     public UserDetailsDTO loadUserByUsername(String email) throws UsernameNotFoundException {
         // MQTT call to CQRS to get user details
-        UserDetailsDTO user = messageExchanger.exchangeMessage(email,securityRequestRoutingKey,securityExchange,UserDetailsDTO.class);
+        UserDetailsDTO user = null;
 
-        if(user == null) {
-            throw new UserNotAuthorizedException("User not found with email: " + email);
+        try {
+            user = messageExchanger.exchangeMessage(email, securityRequestRoutingKey, securityExchange, UserDetailsDTO.class);
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage());
         }
 
-        LOGGER.info(String.format("User %s found with role: %s and enabled %s", user.getEmail(), user.getRole(), user.getEnabled()));
+        if (user != null) {
+            LOGGER.info(String.format("User %s found with role: %s and enabled %s", user.getEmail(), user.getRole(), user.getEnabled()));
+        }
 
         return user;
     }

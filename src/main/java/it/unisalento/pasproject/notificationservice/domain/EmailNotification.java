@@ -8,7 +8,5 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Setter
 @Document(collection = "emailNotification")
 public class EmailNotification extends Notification {
-    private String email;
-    private String subject;
     private String attachment;
 }

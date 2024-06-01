@@ -2,50 +2,37 @@ package it.unisalento.pasproject.notificationservice.service;
 
 import it.unisalento.pasproject.notificationservice.domain.EmailNotification;
 import it.unisalento.pasproject.notificationservice.domain.Notification;
-import it.unisalento.pasproject.notificationservice.domain.NotificationFactory;
 import it.unisalento.pasproject.notificationservice.domain.PopupNotification;
-import it.unisalento.pasproject.notificationservice.dto.EmailNotificationDTO;
-import it.unisalento.pasproject.notificationservice.dto.NotificationDTO;
-import it.unisalento.pasproject.notificationservice.dto.NotificationDTOFactory;
-import it.unisalento.pasproject.notificationservice.dto.PopupNotificationDTO;
+import it.unisalento.pasproject.notificationservice.dto.*;
+import it.unisalento.pasproject.notificationservice.repositories.EmailNotificationRepository;
+import it.unisalento.pasproject.notificationservice.repositories.PopupNotificationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
 public class NotificationService {
+    private final NotificationDTOFactory notificationDTOFactory;
+    private final MongoTemplate mongoTemplate;
+    private final EmailNotificationRepository emailNotificationRepository;
+    private final PopupNotificationRepository popupNotificationRepository;
     private static final Logger LOGGER = LoggerFactory.getLogger(NotificationService.class);
-    private NotificationFactory notificationFactory;
-    private NotificationDTOFactory notificationDTOFactory;
 
-    public Notification getNotification(NotificationDTO notificationDTO) {
-        Notification notification;
+    @Autowired
+    public NotificationService(MongoTemplate mongoTemplate, EmailNotificationRepository emailNotificationRepository, PopupNotificationRepository popupNotificationRepository) {
+        this.notificationDTOFactory = new NotificationDTOFactory();
+        this.mongoTemplate = mongoTemplate;
+        this.emailNotificationRepository = emailNotificationRepository;
+        this.popupNotificationRepository = popupNotificationRepository;
 
-        if (notificationDTO instanceof EmailNotificationDTO emailNotificationDTO) {
-            EmailNotification emailNotification = (EmailNotification) notificationFactory.getNotificationType(NotificationFactory.NotificationType.EMAIL);
-
-            Optional.ofNullable(emailNotificationDTO.getEmail()).ifPresent(emailNotification::setEmail);
-            Optional.ofNullable(emailNotificationDTO.getSubject()).ifPresent(emailNotification::setSubject);
-            Optional.ofNullable(emailNotificationDTO.getAttachment()).ifPresent(emailNotification::setAttachment);
-            Optional.ofNullable(emailNotificationDTO.getMessage()).ifPresent(emailNotification::setMessage);
-            Optional.ofNullable(emailNotificationDTO.getSendAt()).ifPresent(emailNotification::setSendAt);
-
-            notification = emailNotification;
-        } else if (notificationDTO instanceof PopupNotificationDTO popupNotificationDTO) {
-            PopupNotification popupNotification = (PopupNotification) notificationFactory.getNotificationType(NotificationFactory.NotificationType.POPUP);
-
-            Optional.ofNullable(popupNotificationDTO.getUserEmail()).ifPresent(popupNotification::setUserEmail);
-            Optional.ofNullable(popupNotificationDTO.getMessage()).ifPresent(popupNotification::setMessage);
-            Optional.ofNullable(popupNotificationDTO.getSendAt()).ifPresent(popupNotification::setSendAt);
-
-            notification = popupNotification;
-        } else {
-            throw new IllegalArgumentException("Unsupported notification type");
-        }
-
-        return notification;
     }
 
     public NotificationDTO getNotificationDTO(Notification notification) {
@@ -54,19 +41,23 @@ public class NotificationService {
 
             EmailNotificationDTO emailNotificationDTO = (EmailNotificationDTO) notificationDTOFactory.getNotificationDTOType(NotificationDTOFactory.NotificationDTOType.EMAIL);
 
+            Optional.ofNullable(emailNotification.getId()).ifPresent(emailNotificationDTO::setId);
             Optional.ofNullable(emailNotification.getEmail()).ifPresent(emailNotificationDTO::setEmail);
             Optional.ofNullable(emailNotification.getSubject()).ifPresent(emailNotificationDTO::setSubject);
+            Optional.ofNullable(emailNotification.getMessage()).ifPresent(emailNotificationDTO::setMessage);
             Optional.ofNullable(emailNotification.getAttachment()).ifPresent(emailNotificationDTO::setAttachment);
-            Optional.ofNullable(notification.getMessage()).ifPresent(emailNotificationDTO::setMessage);
-            Optional.ofNullable(notification.getSendAt()).ifPresent(emailNotificationDTO::setSendAt);
+            Optional.ofNullable(emailNotification.getSendAt()).ifPresent(emailNotificationDTO::setSendAt);
 
             notificationDTO = emailNotificationDTO;
         } else if (notification instanceof PopupNotification popupNotification) {
             PopupNotificationDTO popupNotificationDTO = (PopupNotificationDTO) notificationDTOFactory.getNotificationDTOType(NotificationDTOFactory.NotificationDTOType.POPUP);
 
-            Optional.ofNullable(popupNotification.getUserEmail()).ifPresent(popupNotificationDTO::setUserEmail);
-            Optional.ofNullable(notification.getMessage()).ifPresent(popupNotificationDTO::setMessage);
-            Optional.ofNullable(notification.getSendAt()).ifPresent(popupNotificationDTO::setSendAt);
+            Optional.ofNullable(popupNotificationDTO.getId()).ifPresent(popupNotificationDTO::setId);
+            Optional.ofNullable(popupNotification.getEmail()).ifPresent(popupNotificationDTO::setEmail);
+            Optional.ofNullable(popupNotification.getSubject()).ifPresent(popupNotificationDTO::setSubject);
+            Optional.ofNullable(popupNotification.getMessage()).ifPresent(popupNotificationDTO::setMessage);
+            Optional.ofNullable(popupNotification.getSendAt()).ifPresent(popupNotificationDTO::setSendAt);
+            Optional.of(popupNotification.isRead()).ifPresent(popupNotificationDTO::setRead);
 
             notificationDTO = popupNotificationDTO;
         } else {
@@ -74,5 +65,84 @@ public class NotificationService {
         }
 
         return notificationDTO;
+    }
+
+    public NotificationDTO updateReadStatus(String id, boolean read) {
+        Optional<PopupNotification> optionalPopupNotification = popupNotificationRepository.findById(id);
+        if (optionalPopupNotification.isPresent()) {
+            PopupNotification popupNotification = optionalPopupNotification.get();
+            popupNotification.setRead(read);
+            popupNotificationRepository.save(popupNotification);
+
+            return getNotificationDTO(popupNotification);
+        } else {
+            return null;
+        }
+    }
+
+    public void updateAllReadStatus(boolean read) {
+        List<PopupNotification> popupNotifications = popupNotificationRepository.findAll();
+        for (PopupNotification popupNotification : popupNotifications) {
+            popupNotification.setRead(read);
+        }
+        popupNotificationRepository.saveAll(popupNotifications);
+    }
+
+    public List<EmailNotification> findEmailNotifications(String email, String subject, LocalDateTime from, LocalDateTime to) {
+        Query query = new Query();
+
+        // Add conditions based on parameters provided
+        if (email != null) {
+            query.addCriteria(Criteria.where("email").is(email));
+        }
+
+        if (subject != null) {
+            query.addCriteria(Criteria.where("subject").is(subject));
+        }
+        if (from != null) {
+            query.addCriteria(Criteria.where("sendAt").gte(from));
+        }
+        if (to != null) {
+            query.addCriteria(Criteria.where("sendAt").lte(to));
+        }
+
+        LOGGER.info("\n{}\n", query);
+
+        List<EmailNotification> emailNotifications = mongoTemplate.find(query, EmailNotification.class, mongoTemplate.getCollectionName(EmailNotification.class));
+
+        LOGGER.info("\nEmail Notifications: {}\n", emailNotifications);
+
+        return emailNotifications;
+    }
+
+    public List<PopupNotification> findPopupNotifications(String email, String subject, LocalDateTime from, LocalDateTime to, Boolean read) {
+        Query query = new Query();
+
+        // Add conditions based on parameters provided
+        if (email != null) {
+            query.addCriteria(Criteria.where("email").is(email));
+        }
+
+        if (subject != null) {
+            query.addCriteria(Criteria.where("subject").is(subject));
+        }
+        if (from != null) {
+            query.addCriteria(Criteria.where("sendAt").gte(from));
+        }
+        if (to != null) {
+            query.addCriteria(Criteria.where("sendAt").lte(to));
+        }
+
+        if (read != null) {
+            query.addCriteria(Criteria.where("read").is(read));
+        }
+
+        LOGGER.info("\n{}\n", query);
+
+        List<PopupNotification> popupNotifications = mongoTemplate.find(query, PopupNotification.class, mongoTemplate.getCollectionName(PopupNotification.class));
+
+        LOGGER.info("\nPopup Notifications: {}\n", popupNotifications);
+
+        return popupNotifications;
     }
 }

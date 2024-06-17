@@ -2,6 +2,8 @@ package it.unisalento.pasproject.notificationservice.service;
 
 import it.unisalento.pasproject.notificationservice.domain.EmailNotification;
 import it.unisalento.pasproject.notificationservice.domain.Notification;
+import it.unisalento.pasproject.notificationservice.exceptions.InvalidNotificationTypeException;
+import it.unisalento.pasproject.notificationservice.exceptions.SendEmailException;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +30,7 @@ public class EmailNotificationSender implements NotificationSender {
     @Override
     public void sendNotification(Notification notification) {
         if (!(notification instanceof EmailNotification emailNotification)) {
-            throw new IllegalArgumentException("Invalid notification type");
+            throw new InvalidNotificationTypeException("Invalid notification type");
         }
 
         if (emailNotification.getAttachment() != null) {
@@ -48,7 +50,7 @@ public class EmailNotificationSender implements NotificationSender {
 
                 mailSender.send(message);
             } catch (MessagingException e) {
-                throw new RuntimeException("Error sending email", e);
+                throw new SendEmailException("Error sending email " + e.getMessage());
             }
         } else {
             // Se l'email non ha un allegato, utilizza SimpleMailMessage per inviare l'email

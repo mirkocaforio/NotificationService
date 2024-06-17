@@ -4,6 +4,7 @@ import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.pdf.PdfWriter;
+import it.unisalento.pasproject.notificationservice.exceptions.PdfCreationException;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
@@ -22,7 +23,7 @@ public class PdfCreator {
             document.close();
 
         } catch (DocumentException e) {
-            throw new RuntimeException("Error creating PDF", e);
+            throw new PdfCreationException("Error creating PDF: " + e.getMessage());
         }
 
         return outputStream;

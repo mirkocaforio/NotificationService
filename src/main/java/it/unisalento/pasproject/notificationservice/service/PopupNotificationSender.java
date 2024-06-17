@@ -2,6 +2,8 @@ package it.unisalento.pasproject.notificationservice.service;
 
 import it.unisalento.pasproject.notificationservice.domain.Notification;
 import it.unisalento.pasproject.notificationservice.domain.PopupNotification;
+import it.unisalento.pasproject.notificationservice.exceptions.InvalidNotificationTypeException;
+import it.unisalento.pasproject.notificationservice.exceptions.SseSendException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -19,7 +21,7 @@ public class PopupNotificationSender implements NotificationSender {
     @Override
     public void sendNotification(Notification notification) {
         if (!(notification instanceof PopupNotification popupNotification)) {
-            throw new IllegalArgumentException("Invalid notification type");
+            throw new InvalidNotificationTypeException("Invalid notification type");
         }
 
         SseEmitter emitter = sseEmitters.get(popupNotification.getEmail());
@@ -27,7 +29,7 @@ public class PopupNotificationSender implements NotificationSender {
             try {
                 emitter.send(popupNotification.getMessage());
             } catch (IOException e) {
-                throw new RuntimeException("Error sending SSE", e);
+                throw new SseSendException("Error sending SSE " + e.getMessage());
             }
         }
     }

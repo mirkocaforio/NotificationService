@@ -1,4 +1,4 @@
-package it.unisalento.pasproject.notificationservice.exceptions;
+package it.unisalento.pasproject.notificationservice.exceptions.global;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;

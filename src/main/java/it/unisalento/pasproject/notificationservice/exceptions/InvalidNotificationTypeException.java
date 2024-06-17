@@ -3,8 +3,8 @@ package it.unisalento.pasproject.notificationservice.exceptions;
 import it.unisalento.pasproject.notificationservice.exceptions.global.CustomErrorException;
 import org.springframework.http.HttpStatus;
 
-public class AccessDeniedException extends CustomErrorException {
-    public AccessDeniedException(String message) {
-        super(message, HttpStatus.FORBIDDEN);
+public class InvalidNotificationTypeException extends CustomErrorException {
+    public InvalidNotificationTypeException(String message) {
+        super(message, HttpStatus.BAD_REQUEST);
     }
 }

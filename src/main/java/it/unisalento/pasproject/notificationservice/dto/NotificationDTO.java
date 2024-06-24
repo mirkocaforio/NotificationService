@@ -13,4 +13,5 @@ public abstract class NotificationDTO {
     private String subject;
     private String message;
     private LocalDateTime sendAt;
+    private String type;
 }

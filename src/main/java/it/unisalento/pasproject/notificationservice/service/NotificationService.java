@@ -2,6 +2,7 @@ package it.unisalento.pasproject.notificationservice.service;
 
 import it.unisalento.pasproject.notificationservice.domain.EmailNotification;
 import it.unisalento.pasproject.notificationservice.domain.Notification;
+import it.unisalento.pasproject.notificationservice.domain.NotificationFactory;
 import it.unisalento.pasproject.notificationservice.domain.PopupNotification;
 import it.unisalento.pasproject.notificationservice.dto.*;
 import it.unisalento.pasproject.notificationservice.repositories.EmailNotificationRepository;
@@ -20,6 +21,7 @@ import java.util.Optional;
 
 @Service
 public class NotificationService {
+    private final NotificationFactory notificationFactory;
     private final NotificationDTOFactory notificationDTOFactory;
     private final MongoTemplate mongoTemplate;
     private final EmailNotificationRepository emailNotificationRepository;
@@ -28,11 +30,38 @@ public class NotificationService {
 
     @Autowired
     public NotificationService(MongoTemplate mongoTemplate, EmailNotificationRepository emailNotificationRepository, PopupNotificationRepository popupNotificationRepository) {
+        this.notificationFactory = new NotificationFactory();
         this.notificationDTOFactory = new NotificationDTOFactory();
         this.mongoTemplate = mongoTemplate;
         this.emailNotificationRepository = emailNotificationRepository;
         this.popupNotificationRepository = popupNotificationRepository;
 
+    }
+
+    public EmailNotification getEmailNotification(NotificationMessageDTO notificationMessageDTO) {
+        EmailNotification emailNotification = (EmailNotification) notificationFactory.getNotificationType(NotificationFactory.NotificationType.EMAIL);
+
+        Optional.ofNullable(notificationMessageDTO.getReceiver()).ifPresent(emailNotification::setEmail);
+        Optional.ofNullable(notificationMessageDTO.getSubject()).ifPresent(emailNotification::setSubject);
+        Optional.ofNullable(notificationMessageDTO.getMessage()).ifPresent(emailNotification::setMessage);
+        //TODO: VEDERE COME GESTIRE EVENTUALI ALLEGATI
+        //Optional.ofNullable(notificationMessageDTO.getAttachment()).ifPresent(emailNotification::setAttachment);
+        Optional.ofNullable(notificationMessageDTO.getType()).ifPresent(emailNotification::setType);
+        emailNotification.setSendAt(LocalDateTime.now());
+
+        return emailNotificationRepository.save(emailNotification);
+    }
+
+    public PopupNotification getPopupNotification(NotificationMessageDTO notificationMessageDTO) {
+        PopupNotification popupNotification = (PopupNotification) notificationFactory.getNotificationType(NotificationFactory.NotificationType.POPUP);
+
+        Optional.ofNullable(notificationMessageDTO.getReceiver()).ifPresent(popupNotification::setEmail);
+        Optional.ofNullable(notificationMessageDTO.getSubject()).ifPresent(popupNotification::setSubject);
+        Optional.ofNullable(notificationMessageDTO.getMessage()).ifPresent(popupNotification::setMessage);
+        Optional.ofNullable(notificationMessageDTO.getType()).ifPresent(popupNotification::setType);
+        popupNotification.setSendAt(LocalDateTime.now());
+
+        return popupNotificationRepository.save(popupNotification);
     }
 
     public NotificationDTO getNotificationDTO(Notification notification) {

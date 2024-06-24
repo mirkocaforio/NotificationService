@@ -15,5 +15,6 @@ public abstract class Notification {
     private String subject;
     private String message;
     private LocalDateTime sendAt;
+    private String type;
     //TODO: VEDERE COME GESTIRE EVENTUALI ALLEGATI
 }

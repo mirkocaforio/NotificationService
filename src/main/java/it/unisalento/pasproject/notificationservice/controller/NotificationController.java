@@ -75,9 +75,6 @@ public class NotificationController {
 
         List<EmailNotification> notifications = notificationService.findEmailNotifications(email, subject, from, to);
 
-        if (notifications.isEmpty())
-            throw new NotificationNotFoundException("No notifications found");
-
         for (Notification notification : notifications) {
             list.add(notificationService.getNotificationDTO(notification));
         }
@@ -96,9 +93,6 @@ public class NotificationController {
         notificationListDTO.setNotificationsList(list);
 
         List<PopupNotification> notifications = notificationService.findPopupNotifications(email, subject, from, to, read);
-
-        if (notifications.isEmpty())
-            throw new NotificationNotFoundException("No notifications found");
 
         for (Notification notification : notifications) {
             list.add(notificationService.getNotificationDTO(notification));

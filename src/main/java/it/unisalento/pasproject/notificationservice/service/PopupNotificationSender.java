@@ -27,7 +27,7 @@ public class PopupNotificationSender implements NotificationSender {
         SseEmitter emitter = sseEmitters.get(popupNotification.getEmail());
         if (emitter != null) {
             try {
-                emitter.send(popupNotification.getMessage());
+                emitter.send(popupNotification);
             } catch (IOException e) {
                 throw new SseSendException("Error sending SSE " + e.getMessage());
             }

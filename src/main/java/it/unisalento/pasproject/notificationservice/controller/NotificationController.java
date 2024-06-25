@@ -33,7 +33,7 @@ public class NotificationController {
         this.popupNotificationRepository = popupNotificationRepository;
     }
 
-    @GetMapping(value = "/find/email/all")
+    @GetMapping(value = "/email/find/all")
     public NotificationListDTO getAllEmailNotifications() {
         NotificationListDTO notificationListDTO = new NotificationListDTO();
         List<NotificationDTO> notificationList = new ArrayList<>();
@@ -48,7 +48,7 @@ public class NotificationController {
         return notificationListDTO;
     }
 
-    @GetMapping(value = "/find/popup/all")
+    @GetMapping(value = "/popup/find/all")
     public NotificationListDTO getAllPopupNotifications() {
         NotificationListDTO notificationListDTO = new NotificationListDTO();
         List<NotificationDTO> notificationList = new ArrayList<>();
@@ -64,7 +64,7 @@ public class NotificationController {
     }
 
 
-    @GetMapping("/find/email")
+    @GetMapping("/email/find")
     public NotificationListDTO getEmailByFilter(@RequestParam(required = false) String email,
                                            @RequestParam(required = false) String subject,
                                            @RequestParam(required = false) LocalDateTime from,
@@ -82,7 +82,7 @@ public class NotificationController {
         return notificationListDTO;
     }
 
-    @GetMapping("/find/popup")
+    @GetMapping("/popup/find")
     public NotificationListDTO getPopupByFilter(@RequestParam(required = false) String email,
                                                 @RequestParam(required = false) String subject,
                                                 @RequestParam(required = false) LocalDateTime from,

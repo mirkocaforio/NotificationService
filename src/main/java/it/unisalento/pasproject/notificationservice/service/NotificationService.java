@@ -110,11 +110,18 @@ public class NotificationService {
     }
 
     public void updateAllReadStatus(boolean read) {
-        List<PopupNotification> popupNotifications = popupNotificationRepository.findAll();
-        for (PopupNotification popupNotification : popupNotifications) {
+        Optional<List<PopupNotification>> popupNotifications = popupNotificationRepository.findByRead(!read);
+
+        if(popupNotifications.isEmpty()) {
+            return;
+        }
+
+        List<PopupNotification> popups = popupNotifications.get();
+
+        for (PopupNotification popupNotification : popups) {
             popupNotification.setRead(read);
         }
-        popupNotificationRepository.saveAll(popupNotifications);
+        popupNotificationRepository.saveAll(popups);
     }
 
     public List<EmailNotification> findEmailNotifications(String email, String subject, LocalDateTime from, LocalDateTime to) {

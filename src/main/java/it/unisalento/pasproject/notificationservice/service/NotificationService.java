@@ -44,8 +44,7 @@ public class NotificationService {
         Optional.ofNullable(notificationMessageDTO.getReceiver()).ifPresent(emailNotification::setEmail);
         Optional.ofNullable(notificationMessageDTO.getSubject()).ifPresent(emailNotification::setSubject);
         Optional.ofNullable(notificationMessageDTO.getMessage()).ifPresent(emailNotification::setMessage);
-        //TODO: VEDERE COME GESTIRE EVENTUALI ALLEGATI
-        //Optional.ofNullable(notificationMessageDTO.getAttachment()).ifPresent(emailNotification::setAttachment);
+        Optional.ofNullable(notificationMessageDTO.getAttachment()).ifPresent(emailNotification::setAttachment);
         Optional.ofNullable(notificationMessageDTO.getType()).ifPresent(emailNotification::setType);
         emailNotification.setSendAt(LocalDateTime.now());
 
@@ -75,6 +74,7 @@ public class NotificationService {
             Optional.ofNullable(emailNotification.getEmail()).ifPresent(emailNotificationDTO::setEmail);
             Optional.ofNullable(emailNotification.getSubject()).ifPresent(emailNotificationDTO::setSubject);
             Optional.ofNullable(emailNotification.getMessage()).ifPresent(emailNotificationDTO::setMessage);
+            Optional.ofNullable(emailNotification.getType()).ifPresent(emailNotificationDTO::setType);
             Optional.ofNullable(emailNotification.getAttachment()).ifPresent(emailNotificationDTO::setAttachment);
             Optional.ofNullable(emailNotification.getSendAt()).ifPresent(emailNotificationDTO::setSendAt);
 
@@ -86,6 +86,7 @@ public class NotificationService {
             Optional.ofNullable(popupNotification.getEmail()).ifPresent(popupNotificationDTO::setEmail);
             Optional.ofNullable(popupNotification.getSubject()).ifPresent(popupNotificationDTO::setSubject);
             Optional.ofNullable(popupNotification.getMessage()).ifPresent(popupNotificationDTO::setMessage);
+            Optional.ofNullable(popupNotification.getType()).ifPresent(popupNotificationDTO::setType);
             Optional.ofNullable(popupNotification.getSendAt()).ifPresent(popupNotificationDTO::setSendAt);
             Optional.of(popupNotification.isRead()).ifPresent(popupNotificationDTO::setRead);
 

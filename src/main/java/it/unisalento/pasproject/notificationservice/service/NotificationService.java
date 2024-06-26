@@ -60,6 +60,7 @@ public class NotificationService {
         Optional.ofNullable(notificationMessageDTO.getMessage()).ifPresent(popupNotification::setMessage);
         Optional.ofNullable(notificationMessageDTO.getType()).ifPresent(popupNotification::setType);
         popupNotification.setSendAt(LocalDateTime.now());
+        popupNotification.setRead(false);
 
         return popupNotificationRepository.save(popupNotification);
     }
@@ -81,7 +82,7 @@ public class NotificationService {
         } else if (notification instanceof PopupNotification popupNotification) {
             PopupNotificationDTO popupNotificationDTO = (PopupNotificationDTO) notificationDTOFactory.getNotificationDTOType(NotificationDTOFactory.NotificationDTOType.POPUP);
 
-            Optional.ofNullable(popupNotificationDTO.getId()).ifPresent(popupNotificationDTO::setId);
+            Optional.ofNullable(popupNotification.getId()).ifPresent(popupNotificationDTO::setId);
             Optional.ofNullable(popupNotification.getEmail()).ifPresent(popupNotificationDTO::setEmail);
             Optional.ofNullable(popupNotification.getSubject()).ifPresent(popupNotificationDTO::setSubject);
             Optional.ofNullable(popupNotification.getMessage()).ifPresent(popupNotificationDTO::setMessage);

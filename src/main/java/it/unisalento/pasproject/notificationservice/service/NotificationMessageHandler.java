@@ -24,25 +24,27 @@ public class NotificationMessageHandler {
 
     @RabbitListener(queues = "${rabbitmq.queue.notification.name}")
     public void receiveNotificationMessage(NotificationMessageDTO notificationDTO) {
-        LOGGER.info("Received notification message");
+        try {
+            LOGGER.info("Received notification message");
 
-        if(notificationDTO.isNotification()) {
-            PopupNotification popupNotification = notificationService.getPopupNotification(notificationDTO);
-            //popupNotificationSender.sendNotification(popupNotification);
-            LOGGER.info("Popup notification message saved");
+            if(notificationDTO.isNotification()) {
+                PopupNotification popupNotification = notificationService.getPopupNotification(notificationDTO);
+                //popupNotificationSender.sendNotification(popupNotification);
+                LOGGER.info("Popup notification message saved");
+            }
+
+            if(notificationDTO.isEmail()) {
+                EmailNotification emailNotification = notificationService.getEmailNotification(notificationDTO);
+                emailNotificationSender.sendNotification(emailNotification);
+                LOGGER.info("Email notification message saved");
+            }
+
+            if (!notificationDTO.isNotification() && !notificationDTO.isEmail()) {
+                PopupNotification popupNotification = notificationService.getPopupNotification(notificationDTO);
+                //popupNotificationSender.sendNotification(popupNotification);
+            }
+        } catch (Exception e) {
+            LOGGER.error("Error while processing notification message: {}", e.getMessage());
         }
-
-        if(notificationDTO.isEmail()) {
-            EmailNotification emailNotification = notificationService.getEmailNotification(notificationDTO);
-            emailNotificationSender.sendNotification(emailNotification);
-            LOGGER.info("Email notification message saved");
-        }
-
-        if (!notificationDTO.isNotification() && !notificationDTO.isEmail()) {
-            PopupNotification popupNotification = notificationService.getPopupNotification(notificationDTO);
-            //popupNotificationSender.sendNotification(popupNotification);
-        }
-
-        //TODO: Invio mail e vedere se dare un tipo di ritorno
     }
 }

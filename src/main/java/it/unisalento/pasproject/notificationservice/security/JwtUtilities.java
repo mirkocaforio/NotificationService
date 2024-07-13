@@ -5,6 +5,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -12,18 +13,23 @@ import java.security.Key;
 import java.util.Date;
 import java.util.function.Function;
 
-import static it.unisalento.pasproject.notificationservice.security.SecurityConstants.JWT_SECRET;
-
 /**
  * The JwtUtilities class provides utility methods for handling JSON Web Tokens (JWTs).
  * It includes methods for extracting claims from a token, validating a token, and checking if a token is expired.
  */
 @Service
 public class JwtUtilities {
+    private final Key key;
+
     /**
-     * The key used for signing JWTs.
+     * Constructs a JwtUtilities instance with a security key derived from the provided security constants.
+     *
+     * @param securityConstants The security constants containing the JWT secret.
      */
-    private final Key key = Keys.hmacShaKeyFor(JWT_SECRET.getBytes());
+    @Autowired
+    public JwtUtilities(SecurityConstants securityConstants) {
+        key = Keys.hmacShaKeyFor(securityConstants.getJWT_SECRET().getBytes());
+    }
 
     /**
      * The logger used for logging messages.

@@ -1,6 +1,6 @@
-package it.unisalento.pasproject.notificationservice;
+package it.unisalento.pasproject.notificationservice.controller;
 
-import it.unisalento.pasproject.notificationservice.controller.NotificationController;
+import it.unisalento.pasproject.notificationservice.TestSecurityConfig;
 import it.unisalento.pasproject.notificationservice.domain.EmailNotification;
 import it.unisalento.pasproject.notificationservice.domain.PopupNotification;
 import it.unisalento.pasproject.notificationservice.dto.EmailNotificationDTO;
@@ -9,11 +9,8 @@ import it.unisalento.pasproject.notificationservice.exceptions.NotificationNotFo
 import it.unisalento.pasproject.notificationservice.repositories.EmailNotificationRepository;
 import it.unisalento.pasproject.notificationservice.repositories.PopupNotificationRepository;
 import it.unisalento.pasproject.notificationservice.service.NotificationService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Answers;
-import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -31,7 +28,6 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
